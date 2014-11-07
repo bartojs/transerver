@@ -4,15 +4,15 @@
            [java.nio.channels SelectionKey Selector ServerSocketChannel SocketChannel])
   (:require [clojure.core.async :refer [chan <! >! go dropping-buffer]]))
 
-(def xlog (map (fn [b] (println "xlog" (String. b)) b)))
-(def xxlog (map (fn [b] (println "xxlog" (String. b)) b)))
+(def xlog (map (fn [b] (let [s (String. b)] (println "xlog" s) (str "x" s)))))
+(def zlog (map (fn [b] (let [s (String. b)] (println "zlog" s) (str "z" s)))))
 
 (defn -main [& args]
   (println "Hello, World!")
   (let [selector (Selector/open)
         server (doto (ServerSocketChannel/open) (.configureBlocking false))
         buffer (ByteBuffer/allocate 2048)
-        reqchan (chan (dropping-buffer 10) (comp xlog xxlog))]
+        reqchan (chan (dropping-buffer 10) (comp xlog zlog))]
 
         (.bind (.socket server) (InetSocketAddress. "localhost" 5555))
         (.register server selector SelectionKey/OP_ACCEPT)
